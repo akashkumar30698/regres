@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "../components/auth-provider"
 import { UserCard } from "../components/user-card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Pagination,
   PaginationContent,
@@ -12,7 +13,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { Loader2, LogOut } from "lucide-react"
+import { Loader2, LogOut, Search } from "lucide-react"
 import { toast } from "sonner"
 import type { User } from "../lib/types"
 import { fetchUsers } from "../lib/api"
@@ -24,6 +25,7 @@ export default function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -57,7 +59,7 @@ export default function UsersPage() {
   const handleDeleteUser = (id: number) => {
     setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id))
     toast(
-    "User has been successfully deleted."
+      "User has been successfully deleted."
     )
   }
 
@@ -75,6 +77,19 @@ export default function UsersPage() {
         </Button>
       </div>
 
+      <div className="mb-4">
+        <div className="relative">
+          <Input
+            type="text"
+            placeholder="Search users by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        </div>
+      </div>
+
       {loading ? (
         <div className="flex h-64 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -82,38 +97,66 @@ export default function UsersPage() {
         </div>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {users.map((user) => (
-              <UserCard key={user.id} user={user} onDelete={handleDeleteUser} />
-            ))}
-          </div>
+          {(() => {
+            const filteredUsers = users.filter((user) => {
+              const searchLower = searchTerm.toLowerCase()
+              return (
+                user.first_name.toLowerCase().includes(searchLower) ||
+                user.last_name.toLowerCase().includes(searchLower) ||
+                user.email.toLowerCase().includes(searchLower)
+              )
+            })
 
-          <Pagination className="mt-6">
-  <PaginationContent>
-    <PaginationItem>
-      <button
-        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-        disabled={currentPage === 1}
-        className={`p-2 rounded ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
-      >
-        <PaginationPrevious />
-      </button>
-    </PaginationItem>
-    <PaginationItem>
-      Page {currentPage} of {totalPages}
-    </PaginationItem>
-    <PaginationItem>
-      <button
-        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-        disabled={currentPage === totalPages}
-        className={`p-2 rounded ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
-      >
-        <PaginationNext />
-      </button>
-    </PaginationItem>
-  </PaginationContent>
-          </Pagination>
+            if (filteredUsers.length === 0 && searchTerm) {
+              return (
+                <div className="flex h-64 flex-col items-center justify-center text-center">
+                  <p className="text-lg font-medium">No users found</p>
+                  <p className="text-muted-foreground">Try a different search term or clear the search</p>
+                  <Button variant="outline" className="mt-4" onClick={() => setSearchTerm("")}>
+                    Clear Search
+                  </Button>
+                </div>
+              )
+            }
 
+            return (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredUsers.map((user) => (
+                  <UserCard key={user.id} user={user} onDelete={handleDeleteUser} />
+                ))}
+              </div>
+            )
+          })()}
+
+          {users.length > 0 && !searchTerm && (
+         <Pagination className="mt-6">
+         <PaginationContent>
+           <PaginationItem>
+             <button
+               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+               disabled={currentPage === 1}
+               className={`p-2 rounded ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+             >
+               <PaginationPrevious />
+             </button>
+           </PaginationItem>
+           <PaginationItem>
+             Page {currentPage} of {totalPages}
+           </PaginationItem>
+           <PaginationItem>
+             <button
+               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+               disabled={currentPage === totalPages}
+               className={`p-2 rounded ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
+             >
+               <PaginationNext />
+             </button>
+           </PaginationItem>
+         </PaginationContent>
+       </Pagination>
+       
+        
+          )}
         </>
       )}
     </div>
