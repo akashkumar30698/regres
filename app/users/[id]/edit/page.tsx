@@ -11,12 +11,8 @@ import { toast } from "sonner"
 import type { User } from "../../../lib/types"
 import { fetchUser, updateUser } from "../../../lib/api"
 
-interface EditUserPageProps {
-    params: { id: string }
-  }
-  
 
-export default function EditUserPage({ params }: EditUserPageProps) {
+export default function EditUserPage() {
   const router = useRouter()
   const { isAuthenticated } = useAuth()
   const [user, setUser] = useState<User | null>(null)
@@ -32,7 +28,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
     const loadUser = async () => {
       try {
         setLoading(true)
-        const userData = await fetchUser(Number.parseInt(params.id))
+        const userData = await fetchUser(Number.parseInt("8"))
         setUser(userData.data)
       } catch (error) {
         console.log("Some error occured :",error)
@@ -46,7 +42,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
     }
 
     loadUser()
-  }, [isAuthenticated, params.id, router, toast])
+  }, [isAuthenticated, router, toast])
 
   const handleUpdate = async (updatedUser: Partial<User>) => {
     if (!user) return
