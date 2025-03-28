@@ -40,6 +40,7 @@ export function UserCard({ user, onDelete }: UserCardProps) {
       await deleteUser(user.id)
       onDelete(user.id)
     } catch (error) {
+        console.log("some error occured :",error)
       toast(
     "Failed to delete user. Please try again."
       )

@@ -40,6 +40,7 @@ export default function UsersPage() {
         setUsers(data.data)
         setTotalPages(data.total_pages)
       } catch (error) {
+        console.log("some error occured :",error)
         toast(
        "Failed to load users. Please try again."
         )

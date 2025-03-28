@@ -30,6 +30,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
         const userData = await fetchUser(Number.parseInt(params.id))
         setUser(userData.data)
       } catch (error) {
+        console.log("Some error occured :",error)
         toast(
         "Failed to load user details. Please try again."
         )
@@ -53,6 +54,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
       )
       router.push("/users")
     } catch (error) {
+        console.log("some error occured :",error)
       toast(
         "Failed to update user. Please try again."
       )
