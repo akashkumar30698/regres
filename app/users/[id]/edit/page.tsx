@@ -11,7 +11,12 @@ import { toast } from "sonner"
 import type { User } from "../../../lib/types"
 import { fetchUser, updateUser } from "../../../lib/api"
 
-export default function EditUserPage({ params }: { params: { id: string } }) {
+interface EditUserPageProps {
+    params: { id: string }
+  }
+  
+
+export default function EditUserPage({ params }: EditUserPageProps) {
   const router = useRouter()
   const { isAuthenticated } = useAuth()
   const [user, setUser] = useState<User | null>(null)
